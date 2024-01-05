@@ -1,0 +1,32 @@
+:root {
+  background-color: #242424;
+  min-height: 100vh;
+
+  --primary-color: #892e8a;
+}
+
+body {
+  margin: 0;
+  place-items: center;
+
+  min-width: 100vh;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0px;
+}
+
+.ant-modal-wrap {
+  backdrop-filter: blur(2px);
+}
+
+.ant-upload-list-item-thumbnail {
+  cursor: default;
+  pointer-events: none;
+}

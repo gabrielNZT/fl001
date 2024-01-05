@@ -1,0 +1,48 @@
+.login-container {
+    min-width: 100vh;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../../assets/Sem_Titulo-1.png');
+}
+
+.login-container-card {
+    background-color: #141414;
+    box-shadow: 3px 0px 17px 6px rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 8px 18px;
+    width: 350px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.login-container-login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.login-container-login-container>div {
+    width: 100%;
+}
+
+.p-fade-in {
+    position: relative;
+    display: inline-block;
+    font-size: 16px;
+    color: white;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

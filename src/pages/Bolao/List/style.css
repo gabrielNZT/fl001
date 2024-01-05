@@ -1,0 +1,26 @@
+.bolao-container-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0px 16px;
+}
+
+.bolao-container-group {
+    margin-top: 8px;
+}
+
+.bolao-list-cards {
+    margin-top: 8px;
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    flex-wrap: wrap;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.ant-card-hoverable:hover {
+    transform: translateY(-5px);
+    border: 1px solid var(--primary-color);
+    transition: 400ms;
+}

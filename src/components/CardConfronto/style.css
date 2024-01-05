@@ -1,0 +1,24 @@
+.card-confronto {
+    transition: 300ms;
+}
+
+.card-confroto-time {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    cursor: pointer;
+}
+
+.card-confroto-time:hover .ant-typography {
+    transition: 300ms;
+    color: var(--primary-color);
+    opacity: 0.7;
+}
+
+.card-confronto .ant-statistic-content {
+    font-size: 14px;
+}
+
+.card-confronto .ant-statistic .ant-statistic-title {
+    margin: 0px;
+}

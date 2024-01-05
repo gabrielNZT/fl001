@@ -1,0 +1,26 @@
+.demo-logo {
+    background-image: url('../../assets/logo.png');
+}
+
+.ant-layout-header {
+    padding: 0px;
+    background: #141414;
+}
+
+.ant-layout {
+    min-height: 100vh;
+}
+
+.fade-in {
+    animation: fade-in ease-in-out 0.5s;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
