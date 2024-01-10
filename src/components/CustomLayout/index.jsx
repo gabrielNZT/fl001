@@ -137,7 +137,7 @@ const CustomLayout = ({ children }) => {
                     textAlign: 'center',
                 }}
             >
-                INZT E2A ©2023 Created by NZT
+                BOLAO 2024 ©2023 Created by NZT
             </Footer>
         </Layout>
     );

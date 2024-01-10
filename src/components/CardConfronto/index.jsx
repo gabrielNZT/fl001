@@ -4,6 +4,7 @@ import { Avatar, Card, Spin, Statistic, Tag, Typography } from 'antd';
 import { useState } from 'react';
 import './style.css';
 import { DEFAULT_IMAGE_BASE_64 } from 'constants';
+import moment from 'moment';
 
 const { Text } = Typography;
 const { Countdown } = Statistic;
@@ -26,11 +27,13 @@ const CardConfronto = ({
         { key: time2_name, value: time2_name },
     ], [time1_name, time2_name]);
 
-    const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
+    console.log(options)
+
+    const deadline = expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30 : moment(date, 'DD/MM/YYYY').valueOf() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
     const onFinish = () => {
         console.log('finished!');
     };
-
+    console.log(selectedKey)
     const handleChange = async (key) => {
         setLoading(true);
         setSelectedKey(key);
@@ -50,14 +53,14 @@ const CardConfronto = ({
                     {phase === 'playoff' && (<Tag color='red' > Playoffs </Tag>)}
                 </span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="card-confroto-time" onClick={() => handleChange('furia')}>
+                    <div className="card-confroto-time" onClick={() => handleChange(time1_name)}>
                         <Avatar size={48} shape='square' src={time1_image} icon={<TeamOutlined />} />
-                        <Text strong style={selectedKey === time1_name ? { color: 'var(--primary-color)' } : undefined}>{time1_name}</Text>
+                        <Text strong style={selectedKey === time1_name ? { color: 'var(--primary-color)', transform: 'scale(1.1)', transition: '0.4s', fontWeight: 'bold' } : undefined}>{time1_name}</Text>
                     </div>
                     <CloseOutlined style={{ fontSize: '26px' }} />
-                    <div className="card-confroto-time" onClick={() => handleChange('pain')}>
+                    <div className="card-confroto-time" onClick={() => handleChange(time2_name)}>
                         <Avatar size={48} shape='square' src={time2_image} icon={<TeamOutlined />} />
-                        <Text strong style={selectedKey === time2_name ? { color: 'var(--primary-color)' } : undefined}>{time2_name}</Text>
+                        <Text strong style={selectedKey === time2_name ? { color: 'var(--primary-color)', transform: 'scale(1.1)', transition: '0.4s' } : undefined}>{time2_name}</Text>
                     </div>
                 </div>
                 <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -73,7 +76,7 @@ const CardConfronto = ({
                         <Text type="secondary">Time escolhido:</Text>
                         <br />
                         <Text>
-                            {options.find(option => option.key === selectedKey)?.label || '-'}
+                            {options.find(option => option.key === selectedKey)?.value || '-'}
                         </Text>
                     </div>
                 </div>

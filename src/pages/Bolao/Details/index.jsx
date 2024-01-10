@@ -81,7 +81,7 @@ const DetailsBolao = () => {
                             }}
                         />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', alignItems: 'flex-end', paddingBottom: '10px' }}>
                         <p style={{ maxWidth: '80%', overflowWrap: 'break-word' }}> {description} </p>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {isAdmin() ? (
@@ -90,7 +90,7 @@ const DetailsBolao = () => {
                                     <Button type="primary" danger> Deletar </Button>
                                 </>
                             ) : (
-                                <Button disabled icon={<CheckCircleOutlined />} type="primary"> Já está participando </Button>
+                                <Button icon={<CheckCircleOutlined />} type="primary"> Participar </Button>
                             )}
                         </div>
                     </div>

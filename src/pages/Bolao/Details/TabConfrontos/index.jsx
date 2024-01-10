@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 const TabConfrontos = ({ loadingDetails }) => {
     const [confrontos, setConfrontos] = useState({ currentWeek: [], outhers: {} });
     const [loading, setLoading] = useState(true);
-    console.log(confrontos);
+
     const supabase = useContext(SupabaseContext);
     const { id } = useParams();
 
@@ -18,8 +18,8 @@ const TabConfrontos = ({ loadingDetails }) => {
         const dataAtual = moment();
         const dataFornecida = moment(data, 'DD/MM/YYYY');
 
-        const inicioSemanaAtual = dataAtual.startOf('week');
-        const fimSemanaAtual = dataAtual.endOf('week');
+        const inicioSemanaAtual = dataAtual.startOf('week').format('YYYY-MM-DD');
+        const fimSemanaAtual = dataAtual.endOf('week').format('YYYY-MM-DD');
 
         return dataFornecida.isBetween(inicioSemanaAtual, fimSemanaAtual, null, '[]');
     };
@@ -46,20 +46,29 @@ const TabConfrontos = ({ loadingDetails }) => {
                 }
             });
 
-            const groupByDate = {};
+            data.sort((a, b) => a.date.localeCompare(b.date));
 
-            data.forEach((confronto, index) => {
-                confronto['group'] = `Rodada ${index + 1}`;
-                if (!pertenceSemanaAtual(confronto.date)) {
-                    if (groupByDate[confronto.date]) {
-                        groupByDate[confronto.date] = [...groupByDate[confronto.date], confronto];
-                    } else {
-                        groupByDate[confronto.date] = [confronto];
-                    }
+            const groupByDate = {};
+            let roudNumber = 1;
+            data.forEach((confronto) => {
+                confronto['group'] = `Rodada ${roudNumber}`;
+
+                if (groupByDate[confronto.date]) {
+                    groupByDate[confronto.date] = [...groupByDate[confronto.date], confronto];
+                } else {
+                    groupByDate[confronto.date] = [confronto];
+                    roudNumber++;
                 }
             });
 
-            setConfrontos({ currentWeek, outhers: groupByDate });
+            const outhersGroupByDate = {};
+            Object.entries(groupByDate).forEach(([date, confrontos]) => {
+                if (!pertenceSemanaAtual(date)) {
+                    outhersGroupByDate[date] = confrontos;
+                }
+            });
+
+            setConfrontos({ currentWeek, outhers: outhersGroupByDate });
         } catch (e) {
             console.log(e);
             toast.error('Não foi possível obter os confrontos. entre em contato com o suporte');
@@ -97,7 +106,7 @@ const TabConfrontos = ({ loadingDetails }) => {
                                 <>
                                     {!confrontosList.length ? <Empty description="Não há nenhum confronto há ser listado." /> : (
                                         <div className="card-confrontos-list">
-                                            <h2> {confrontosList[0].group} </h2>
+                                            <h2> {confrontosList[0].group} - {confrontosList[0].date} </h2>
                                             <div className="card-confrontos-list-container">
                                                 {confrontosList.map((confronto) => <CardConfronto key={confronto.id} {...confronto} />)}
                                             </div>
