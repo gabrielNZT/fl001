@@ -1,6 +1,6 @@
 
 import React from 'react';
-import AntdConfigProvider from './provider/antdConfigProvider';
+import AntdConfigProvider from './provider/AntdConfigProvider';
 
 import { ToastContainer } from 'react-toastify';
 

@@ -1,14 +1,20 @@
+import React, { useLayoutEffect, useState } from 'react';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Dropdown, Layout, Menu, theme } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { ROLE_KEY, TOKEN_KEY } from '../../constants';
 import './style.css';
+import { isAdmin } from '../Private';
 
 const { Header, Content, Footer } = Layout;
 
 const CustomLayout = ({ children }) => {
+    const [selectedMenu, setSelectedMenu] = useState();
+
     const navigate = useNavigate();
+    const location = useLocation();
+
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
@@ -33,12 +39,33 @@ const CustomLayout = ({ children }) => {
         },
     ];
 
+    const hashTableUrl = {
+        '1': '/bolao',
+        '2': '/time'
+    }
+
     const items = [
         {
             key: '1',
-            label: 'Bolões'
+            label: 'Bolões',
         }
     ];
+
+    if (isAdmin()) {
+        items.push({
+            key: '2',
+            label: 'Times',
+        });
+    }
+
+    const handleChangeMenu = (menu) => {
+        navigate(hashTableUrl[menu.key]);
+        setSelectedMenu(prev => menu.keyPath || prev);
+    }
+
+    useLayoutEffect(() => {
+        setSelectedMenu(() => Object.entries(hashTableUrl).find(([, value]) => location.pathname.includes(value))[0])
+    }, []);
 
     return (
         <Layout>
@@ -53,11 +80,17 @@ const CustomLayout = ({ children }) => {
                 }}
             >
                 <div style={{ display: 'flex', justifyContent: 'center', width: '100px' }} >
-                    <img src={logo} alt='logo-intz' style={{ height: '48px', width: '48px', cursor: 'pointer' }} />
+                    <img
+                        onClick={() => handleChangeMenu({ keyPath: ['1'], key: '1' })}
+                        src={logo}
+                        alt='logo-intz'
+                        style={{ height: '48px', width: '48px', cursor: 'pointer' }}
+                    />
                 </div>
                 <Menu
+                    onClick={handleChangeMenu}
                     mode="horizontal"
-                    defaultSelectedKeys={['2']}
+                    selectedKeys={selectedMenu}
                     items={items}
                     style={{
                         flex: 1,
@@ -85,7 +118,6 @@ const CustomLayout = ({ children }) => {
                         margin: '16px 0',
                     }}
                 >
-                    <Breadcrumb.Item>Home</Breadcrumb.Item>
                 </Breadcrumb>
                 <div
                     className='fade-in'

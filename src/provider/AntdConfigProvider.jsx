@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { ConfigProvider, theme } from 'antd';
 import ptBR from 'antd/locale/pt_BR';
 

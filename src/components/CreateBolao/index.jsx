@@ -5,6 +5,7 @@ import { Button, Form, Input, Modal, Spin, Upload } from 'antd';
 import { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { SupabaseContext } from '../../provider/SupabaseProvider';
+import { Private } from '../index';
 
 import './style.css';
 
@@ -76,7 +77,9 @@ const CreateBolao = ({ fetchBoloes }) => {
 
     return (
         <>
-            <Button icon={<PlusCircleFilled />} type='primary' onClick={openModal} > Criar bolão </Button>
+            <Private>
+                <Button size='large' icon={<PlusCircleFilled />} type='primary' onClick={openModal} > Criar bolão </Button>
+            </Private>
             <Modal
                 open={open}
                 onCancel={closeModal}

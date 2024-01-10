@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+import React from 'react';
+
 import { createClient } from '@supabase/supabase-js';
 import { createContext } from 'react';
 

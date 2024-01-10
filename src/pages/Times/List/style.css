@@ -1,0 +1,9 @@
+.container-list-times {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.container-list-times>.ant-btn {
+    width: fit-content;
+}
