@@ -1,10 +1,15 @@
-import React, { useMemo } from 'react';
-import { CloseOutlined, LoadingOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Avatar, Card, Spin, Statistic, Tag, Typography } from 'antd';
+import React, { useContext, useMemo } from 'react';
+import { CloseOutlined, DeleteOutlined, LoadingOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
+import { Avatar, Button, Card, Modal, Spin, Statistic, Tag, Typography } from 'antd';
 import { useState } from 'react';
-import './style.css';
+
 import { DEFAULT_IMAGE_BASE_64 } from 'constants';
 import moment from 'moment';
+import { toast } from 'react-toastify';
+import { Private } from 'components';
+import { SupabaseContext } from 'provider/SupabaseProvider';
+
+import './style.css';
 
 const { Text } = Typography;
 const { Countdown } = Statistic;
@@ -17,24 +22,44 @@ const CardConfronto = ({
     date,
     result,
     expire,
-    phase
+    phase,
+    id,
+    refetchConfrontos = async () => { },
+    isParticipating
 }) => {
     const [selectedKey, setSelectedKey] = useState();
     const [loading, setLoading] = useState(false);
+
+    const supabase = useContext(SupabaseContext);
 
     const options = useMemo(() => [
         { key: time1_name, value: time1_name },
         { key: time2_name, value: time2_name },
     ], [time1_name, time2_name]);
 
-    console.log(options)
+    const deadline = useMemo(() => {
+        return expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() : moment(date, 'DD/MM/YYYY').valueOf();
+    }, [expire, date]);
 
-    const deadline = expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30 : moment(date, 'DD/MM/YYYY').valueOf() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
+
     const onFinish = () => {
         console.log('finished!');
     };
-    console.log(selectedKey)
+
     const handleChange = async (key) => {
+        if (!isParticipating) {
+            return Modal.info({
+                title: 'Você não está participando.',
+                content: 'Clique em "participar" para começar a apostar.',
+                onOk: () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
+
         setLoading(true);
         setSelectedKey(key);
 
@@ -45,13 +70,55 @@ const CardConfronto = ({
         setLoading(false);
     };
 
+    const deleteConfronto = async (id) => {
+        setLoading(true);
+        try {
+            const { error } = await supabase
+                .from('confronto')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                throw error;
+            }
+
+            toast.success('Deletado com sucesso!');
+            refetchConfrontos();
+        } catch (e) {
+            console.log(e);
+            toast.error('Não foi possível deletar o confronto contate o suporte!');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const showDeleteConfirm = () => {
+        Modal.confirm({
+            title: 'Deseja excluir esse Confronto?',
+            icon: <DeleteOutlined style={{ color: 'red' }} />,
+            content: 'Deletar esse confronto pode impactar no resultado do bolao.',
+            okText: 'Confirmar',
+            onOk() {
+                deleteConfronto(id);
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     return (
         <Spin spinning={loading} tip="Salvando alteração" indicator={<LoadingOutlined />}>
             <Card className="card-confronto" style={{ minWidth: 450 }}>
-                <span style={{ display: 'flex', gap: '0px', marginBottom: '6px' }}>
-                    {phase === 'groups' && (<Tag color='blue' >  Fase de pontos </Tag>)}
-                    {phase === 'playoff' && (<Tag color='red' > Playoffs </Tag>)}
-                </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }} >
+                    <span style={{ display: 'flex', gap: '0px', marginBottom: '6px' }}>
+                        {phase === 'groups' && (<Tag color='blue' >  Fase de pontos </Tag>)}
+                        {phase === 'playoff' && (<Tag color='red' > Playoffs </Tag>)}
+                    </span>
+                    <Private>
+                        <Button onClick={showDeleteConfirm} type='primary' ghost danger >Deletar</Button>
+                    </Private>
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="card-confroto-time" onClick={() => handleChange(time1_name)}>
                         <Avatar size={48} shape='square' src={time1_image} icon={<TeamOutlined />} />
