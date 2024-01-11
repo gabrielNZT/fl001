@@ -15,7 +15,7 @@ function App() {
     <>
       <SupabaseProvider>
         <AntdConfigProvider>
-          <ToastContainer position='top-center' />
+          <ToastContainer position='top-center' limit={1} />
           <Routes />
         </AntdConfigProvider>
       </SupabaseProvider>
