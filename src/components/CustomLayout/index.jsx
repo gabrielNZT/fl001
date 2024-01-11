@@ -3,7 +3,7 @@ import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Dropdown, Layout, Menu, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { ROLE_KEY, TOKEN_KEY } from '../../constants';
+import { ROLE_KEY, TOKEN_KEY, USER_ID_KEY } from '../../constants';
 import './style.css';
 import { isAdmin } from '../Private';
 
@@ -22,6 +22,7 @@ const CustomLayout = ({ children }) => {
     const handleExit = () => {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(ROLE_KEY);
+        localStorage.removeItem(USER_ID_KEY);
         navigate('/login');
     };
 
