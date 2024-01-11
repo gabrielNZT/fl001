@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Card, Empty, Tabs } from 'antd';
+import { Card, Empty, Spin, Tabs } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { CreateBolao } from '../../../components';
 
@@ -8,13 +8,15 @@ import { useCallback, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SupabaseContext } from '../../../provider/SupabaseProvider';
 import { setAll } from '../../../store/bolaoReducer';
-import { DEFAULT_IMAGE_BASE_64 } from '../../../constants';
+import { DEFAULT_IMAGE_BASE_64, USER_ID_KEY } from '../../../constants';
 
+import { LoadingOutlined } from '@ant-design/icons';
 import './style.css';
 
 const { Meta } = Card;
 
 const Home = () => {
+    const [loading, setLoading] = useState(true);
     const supabase = useContext(SupabaseContext);
 
     const availables = useSelector(state => state.bolao.availables);
@@ -26,13 +28,14 @@ const Home = () => {
 
     const fetchBoloes = useCallback(async () => {
         try {
-            // Substitua 'bolao' e 'bolao_user' pelos nomes reais de suas tabelas no Supabase
             const { data, error } = await supabase
                 .from('bolao')
                 .select(`
                       *,
                       bolao_user (
-                      registered
+                      registered,
+                      user_id,
+                      bolao_id
                     )
                 `);
 
@@ -44,7 +47,7 @@ const Home = () => {
             const participatingList = [];
             const finishedList = [];
 
-            const currentUserId = '';
+            const currentUserId = localStorage.getItem(USER_ID_KEY);
 
             for (const bolao of data) {
                 const { description, image_bolao, name, id } = bolao;
@@ -67,6 +70,8 @@ const Home = () => {
             dispatch(setAll({ avaibleList, participatingList, finishedList }));
         } catch (error) {
             console.error('Erro ao executar o LEFT JOIN:', error.message);
+        } finally {
+            setLoading(false);
         }
     }, []);
 
@@ -96,20 +101,20 @@ const Home = () => {
 
     const items = [
         {
-            label: 'Disponíveis',
+            label: 'Participando',
             key: '1',
             children: (
                 <div className='fade-in'>
-                    <CardList dataList={availables} emptyDescription="Não há nenhum bolão disponível, entre em contato com o admin para solicitar a criação." />
+                    <CardList dataList={participating} emptyDescription="Você ainda não está participando de nenhum bolão, vá na aba 'disponíveis' e entre em um bolão." />
                 </div>
             ),
         },
         {
-            label: 'Participando',
+            label: 'Disponíveis',
             key: '2',
             children: (
                 <div className='fade-in'>
-                    <CardList dataList={participating} emptyDescription="Você ainda não está participando de nenhum bolão, vá na aba 'disponíveis' e entre em um bolão." />
+                    <CardList dataList={availables} emptyDescription="Não há nenhum bolão disponível, entre em contato com o admin para solicitar a criação." />
                 </div>
             ),
         },
@@ -138,7 +143,9 @@ const Home = () => {
                 <h1> Bolões </h1>
                 <CreateBolao fetchBoloes={fetchBoloes} />
             </div>
-            <Tabs style={{ marginTop: '8px' }} type='card' items={items} defaultActiveKey='1' />
+            <Spin size='large' spinning={loading} tip="Carregando bolões..." indicator={<LoadingOutlined />}>
+                <Tabs style={{ marginTop: '8px' }} type='card' items={items} defaultActiveKey='1' />
+            </Spin>
         </>
     );
 };

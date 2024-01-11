@@ -7,7 +7,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const TabConfrontos = ({ loadingDetails }) => {
+const TabConfrontos = ({ loadingDetails, isParticipating }) => {
     const [confrontos, setConfrontos] = useState({ currentWeek: [], outhers: {} });
     const [loading, setLoading] = useState(true);
 
@@ -23,7 +23,6 @@ const TabConfrontos = ({ loadingDetails }) => {
 
         return dataFornecida.isBetween(inicioSemanaAtual, fimSemanaAtual, null, '[]');
     };
-
 
     const fetchConfrontos = useCallback(async () => {
         setLoading(prev => !prev ? true : prev);
@@ -77,6 +76,11 @@ const TabConfrontos = ({ loadingDetails }) => {
         }
     }, []);
 
+    const propsCardConfronto = {
+        isParticipating,
+        refetchConfrontos: fetchConfrontos
+    };
+
     useEffect(() => {
         fetchConfrontos();
     }, [fetchConfrontos]);
@@ -94,24 +98,23 @@ const TabConfrontos = ({ loadingDetails }) => {
                                 {!confrontos.currentWeek.length ?
                                     <Empty description="Não há nenhum confronto para essa semana cadastrado." /> : (
                                         <div className="card-confrontos-list-container">
-                                            {confrontos.currentWeek.map((confronto) => <CardConfronto key={confronto.id} {...confronto} />)}
+                                            {confrontos.currentWeek.map((confronto) => <CardConfronto key={confronto.id} {...confronto} {...propsCardConfronto} />)}
                                         </div>
                                     )}
                             </div>
                         </div>
                     </Collapse.Panel>
                     <Collapse.Panel header="Outras" key={'2'}>
+                        {!Object.values(confrontos.outhers).length && <Empty description="Não há nenhum confronto há ser listado." />}
                         {Object.entries(confrontos.outhers).map(([, confrontosList]) => {
                             return (
                                 <>
-                                    {!confrontosList.length ? <Empty description="Não há nenhum confronto há ser listado." /> : (
-                                        <div className="card-confrontos-list">
-                                            <h2> {confrontosList[0].group} - {confrontosList[0].date} </h2>
-                                            <div className="card-confrontos-list-container">
-                                                {confrontosList.map((confronto) => <CardConfronto key={confronto.id} {...confronto} />)}
-                                            </div>
+                                    <div className="card-confrontos-list">
+                                        <h2> {confrontosList[0].group} - {confrontosList[0].date} </h2>
+                                        <div className="card-confrontos-list-container">
+                                            {confrontosList.map((confronto) => <CardConfronto key={confronto.id} {...confronto}  {...propsCardConfronto} />)}
                                         </div>
-                                    )}
+                                    </div>
                                 </>
                             )
                         })}

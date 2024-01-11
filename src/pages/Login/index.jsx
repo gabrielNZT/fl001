@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
 import logo from "../../assets/logo.png";
@@ -5,7 +7,7 @@ import logo from "../../assets/logo.png";
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ROLE_KEY, TOKEN_KEY } from '../../constants';
+import { ROLE_KEY, TOKEN_KEY, USER_ID_KEY } from '../../constants';
 import { SupabaseContext } from '../../provider/SupabaseProvider';
 
 import './style.css';
@@ -32,6 +34,7 @@ const Login = () => {
                 const access_token = `${data.session.token_type} ${data.session.access_token}`;
                 localStorage.setItem(TOKEN_KEY, access_token);
                 localStorage.setItem(ROLE_KEY, data.user.role);
+                localStorage.setItem(USER_ID_KEY, data.user.id);
             }
 
             navigate('/bolao', { state: { successLogin: true } });

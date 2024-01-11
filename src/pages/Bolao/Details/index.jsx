@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { ArrowLeftOutlined, CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Spin, Tabs } from "antd";
@@ -13,10 +13,13 @@ import TabUsers from "./TabUsers";
 import { SupabaseContext } from "provider/SupabaseProvider";
 import { DEFAULT_IMAGE_BASE_64 } from "constants";
 import { isAdmin } from "components/Private";
+import { USER_ID_KEY } from "constants";
 
 import './style.css';
 
 const DetailsBolao = () => {
+    const [loadingParticipating, setLoadingParticipating] = useState(false);
+    const [isParticipating, setIsParticipating] = useState();
     const [bolao, setBolao] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -25,6 +28,8 @@ const DetailsBolao = () => {
     const supabase = useContext(SupabaseContext);
     const { id } = useParams();
     const { description, name, image_bolao } = bolao;
+
+    const user_id = useMemo(() => localStorage.getItem(USER_ID_KEY), []);
 
     const fetchDetails = useCallback(async () => {
         try {
@@ -37,6 +42,12 @@ const DetailsBolao = () => {
                 throw error;
             }
 
+            if (!data.length) {
+                navigate('/bolao');
+                toast.info('Esse bolão não existe.');
+                return;
+            }
+
             setBolao(data[0] || {});
         } catch (e) {
             console.log(e);
@@ -47,9 +58,48 @@ const DetailsBolao = () => {
         }
     }, []);
 
+    const participingBolao = async () => {
+        setLoadingParticipating(true);
+        try {
+            const { error } = await supabase
+                .from('bolao_user')
+                .insert([
+                    { user_id, bolao_id: id, registered: true },
+                ])
+                .select();
+
+            if (error) {
+                throw error;
+            }
+
+            setIsParticipating(true);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoadingParticipating(false);
+        }
+    }
+
+    const fetchIsParticipating = async () => {
+        try {
+            const { data: bolao_user, error } = await supabase
+                .from('bolao_user')
+                .select('registered')
+                .eq('user_id', user_id)
+                .eq('bolao_id', id);
+
+            if (error) {
+                throw error;
+            }
+
+            setIsParticipating(!!bolao_user[0]?.registered);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
     const items = [
-        { key: '1', label: 'Confrontos', children: <TabConfrontos loadingDetails={loading} /> },
+        { key: '1', label: 'Confrontos', children: <TabConfrontos isParticipating={isParticipating} loadingDetails={loading} /> },
         { key: '2', label: 'Bets', children: <TabBets /> },
         { key: '3', label: 'Participantes', children: <TabUsers /> },
     ];
@@ -59,7 +109,7 @@ const DetailsBolao = () => {
     };
 
     useEffect(() => {
-        fetchDetails();
+        Promise.all([fetchDetails(), fetchIsParticipating()]);
     }, []);
 
     return (
@@ -90,7 +140,15 @@ const DetailsBolao = () => {
                                     <Button type="primary" danger> Deletar </Button>
                                 </>
                             ) : (
-                                <Button icon={<CheckCircleOutlined />} type="primary"> Participar </Button>
+                                <Button
+                                    loading={loadingParticipating}
+                                    disabled={isParticipating}
+                                    icon={<CheckCircleOutlined />}
+                                    onClick={participingBolao}
+                                    type="primary"
+                                >
+                                    {isParticipating ? "Já inscrito" : "Participar"}
+                                </Button>
                             )}
                         </div>
                     </div>
