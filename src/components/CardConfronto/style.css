@@ -22,3 +22,12 @@
 .card-confronto .ant-statistic .ant-statistic-title {
     margin: 0px;
 }
+
+.card-confronto.expired-card {
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.remove-padding-form-item .ant-form-item-label {
+    padding: 0px;
+}

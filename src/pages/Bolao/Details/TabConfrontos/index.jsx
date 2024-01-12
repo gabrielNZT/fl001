@@ -1,6 +1,7 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { Alert, Collapse, Empty, Spin } from "antd";
 import { CardConfronto, CreateConfronto } from "components";
+import { USER_ID_KEY } from "constants";
 import moment from "moment";
 import { SupabaseContext } from "provider/SupabaseProvider";
 import React, { useCallback, useContext, useEffect, useState } from "react";
@@ -28,7 +29,7 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
         setLoading(prev => !prev ? true : prev);
         try {
             const { data, error } = await supabase
-                .rpc('getconfrontos', { bol_id: parseInt(id) })
+                .rpc('getconfrontos', { bol_id: parseInt(id), userid: localStorage.getItem(USER_ID_KEY) })
 
             if (error) {
                 throw error;

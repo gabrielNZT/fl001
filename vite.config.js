@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => {
         components: path.resolve(__dirname, 'src/components'),
         provider: path.resolve(__dirname, 'src/provider'),
         constants: path.resolve(__dirname, 'src/constants'),
-        utils: path.resolve(__dirname, 'src/utils')
+        utils: path.resolve(__dirname, 'src/utils'),
+        hooks: path.resolve(__dirname, 'src/hooks')
         // Adicione mais aliases conforme necessário
       },
     },

@@ -1,6 +1,6 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { CloseOutlined, DeleteOutlined, LoadingOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, Modal, Spin, Statistic, Tag, Typography } from 'antd';
+import { Alert, Avatar, Button, Card, Form, Input, Modal, Spin, Statistic, Tag, Typography } from 'antd';
 import { useState } from 'react';
 
 import { DEFAULT_IMAGE_BASE_64 } from 'constants';
@@ -8,15 +8,19 @@ import moment from 'moment';
 import { toast } from 'react-toastify';
 import { Private } from 'components';
 import { SupabaseContext } from 'provider/SupabaseProvider';
+import { USER_ID_KEY } from 'constants';
 
 import './style.css';
+import { isAdmin } from 'components/Private';
 
 const { Text } = Typography;
 const { Countdown } = Statistic;
 
 const CardConfronto = ({
+    time1_id,
     time1_name = "",
     time1_image = DEFAULT_IMAGE_BASE_64,
+    time2_id,
     time2_name = "",
     time2_image = DEFAULT_IMAGE_BASE_64,
     date,
@@ -24,29 +28,95 @@ const CardConfronto = ({
     expire,
     phase,
     id,
+    selected_team_id,
+    isParticipating,
     refetchConfrontos = async () => { },
-    isParticipating
 }) => {
+    const [showFormResult, setShowFormResult] = useState(false);
     const [selectedKey, setSelectedKey] = useState();
     const [loading, setLoading] = useState(false);
+    const [expired, setExpired] = useState({ bool: false, status: '' });
+
+    const [form] = Form.useForm();
+
+    const momentFinishedDate = useMemo(() => expire ? moment(expire, 'DD/MM/YYYY') : moment(date, 'DD/MM/YYYY'), [date, expire]);
+
+    const cardConfrontoClassName = useMemo(() => {
+        const classes = [];
+
+        classes.push('card-confronto');
+        if ((expired.bool || moment().isAfter(momentFinishedDate) || result) && !isAdmin()) {
+            classes.push('expired-card');
+        }
+
+        if (expired.status) {
+            classes.push(`${status}-card`);
+        }
+
+        return classes.join(' ');
+    }, [expired.bool, expired.status, momentFinishedDate, result]);
 
     const supabase = useContext(SupabaseContext);
+    const user_id = useMemo(() => localStorage.getItem(USER_ID_KEY), []);
+
+    const time1 = useMemo(() => ({
+        id: time1_id,
+        name: time1_name,
+        image: time1_image
+    }), [time1_id, time1_image, time1_name]);
+    const time2 = useMemo(() => ({
+        id: time2_id,
+        name: time2_name,
+        image: time2_image
+    }), [time2_id, time2_image, time2_name]);
 
     const options = useMemo(() => [
-        { key: time1_name, value: time1_name },
-        { key: time2_name, value: time2_name },
-    ], [time1_name, time2_name]);
+        { key: time1_id, value: time1_name },
+        { key: time2_id, value: time2_name },
+    ], [time1_id, time1_name, time2_id, time2_name]);
 
     const deadline = useMemo(() => {
         return expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() : moment(date, 'DD/MM/YYYY').valueOf();
     }, [expire, date]);
 
-
     const onFinish = () => {
-        console.log('finished!');
+        setExpired({ bool: true, status: '' });
     };
 
+    const deleteAposta = () => {
+        return supabase
+            .from('confronto_user')
+            .delete()
+            .eq('confronto_id', id)
+            .eq('user_id', user_id);
+    }
+
+    const updateAposta = (selected_team_id) => {
+        return supabase
+            .from('confronto_user')
+            .update({ selected_team_id })
+            .eq('confronto_id', id)
+            .eq('user_id', user_id)
+            .select();
+    }
+
+    const createAposta = (selected_team_id) => {
+        return supabase
+            .from('confronto_user')
+            .insert([
+                { user_id, confronto_id: id, selected_team_id },
+            ])
+            .select();
+    }
+
     const handleChange = async (key) => {
+        if (isAdmin()) {
+            return Modal.info({
+                title: 'Você é um administrador.',
+                content: 'Usuários com esse nível de permissão não podem participar das apostas.'
+            });
+        }
+
         if (!isParticipating) {
             return Modal.info({
                 title: 'Você não está participando.',
@@ -60,12 +130,31 @@ const CardConfronto = ({
             });
         }
 
+        const lastSelectedKey = selectedKey;
+        const method = (!key ? 'DELETE' : ((!lastSelectedKey && !!key) ? 'POST' : 'PUT'));
+        const methodHashTable = {
+            PUT: updateAposta,
+            POST: createAposta,
+            DELETE: deleteAposta
+        };
         setLoading(true);
         setSelectedKey(key);
 
-        await new Promise((resolve) => {
-            setTimeout(() => resolve(), 700);
-        });
+        try {
+            const functionToCall = methodHashTable[method]
+            const { error } = await functionToCall(key);
+
+            if (error) {
+                throw error;
+            }
+
+            toast.success(method === 'POST' ? 'Aposta realizada com sucesso!' : 'Alteração realizada com sucesso!');
+            refetchConfrontos();
+        } catch (e) {
+            console.log(e);
+            setSelectedKey(lastSelectedKey);
+            toast.error('Não foi possível salvar sua aposta. Entre em contato com o suporte se o problema persistir.');
+        }
 
         setLoading(false);
     };
@@ -107,9 +196,85 @@ const CardConfronto = ({
         });
     };
 
+    const onBlurResult = async () => {
+        const validarString = (str) => {
+            const regex = /^\d+-\d+$/;
+            return regex.test(str);
+        };
+
+        const { result } = form.getFieldsValue();
+
+        if (!result) {
+            setShowFormResult(false);
+            return;
+        }
+
+        if (!validarString(result)) {
+            return Modal.error({ title: 'Dados inválidos', content: 'O resultado deve seguir o seguinte padrão "1-0" (número-número).' });
+        }
+
+        const scoreTime1 = parseInt(result.split('-')[0]);
+        const scoreTime2 = parseInt(result.split('-')[1]);
+        Modal.confirm({
+            width: 500,
+            okText: "Confirmar",
+            title: 'Definir resultado',
+            content: (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Alert style={{ marginBottom: '10px' }} message="O resultado não poderá mais ser editado após confirmação!" type='warning' />
+                    <span> Resultado: {result}</span>
+                    <span> Time vencedor: {scoreTime1 > scoreTime2 ? time1.name : time2.name}</span>
+                    {phase === 'groups' && (<span> Fase de pontos </span>)}
+                    {phase === 'playoff' && (<span> Playoffs </span>)}
+                    <strong style={{ marginTop: '10px' }}> Errar o resultado pode impactar no resultado do bolão! </strong>
+                </div>
+            ),
+            onOk: async () => {
+                setLoading(true);
+                try {
+                    const { error } = await supabase
+                        .from('confronto')
+                        .update({ result })
+                        .eq('id', id)
+                        .select();
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    setShowFormResult(false);
+                    refetchConfrontos();
+                } catch (e) {
+                    console.log(e);
+                    toast.error('Não foi possível definir o resultado do confronto');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        })
+    }
+
+    useEffect(() => {
+        setSelectedKey(selected_team_id);
+    }, [selected_team_id]);
+
+    const ContainerTime = ({ id, name, image }) => {
+        return (
+            <div className="card-confroto-time" onClick={() => handleChange(selectedKey === id ? null : id)}>
+                <Avatar size={48} shape='square' src={image || DEFAULT_IMAGE_BASE_64} icon={<TeamOutlined />} />
+                <Text
+                    strong
+                    style={(selectedKey === id && !isAdmin()) ? { color: 'var(--primary-color)', transform: 'scale(1.1)', transition: '0.4s', fontWeight: 'bold' } : undefined}
+                >
+                    {name}
+                </Text>
+            </div>
+        );
+    };
+
     return (
         <Spin spinning={loading} tip="Salvando alteração" indicator={<LoadingOutlined />}>
-            <Card className="card-confronto" style={{ minWidth: 450 }}>
+            <Card className={cardConfrontoClassName} style={{ minWidth: 450 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }} >
                     <span style={{ display: 'flex', gap: '0px', marginBottom: '6px' }}>
                         {phase === 'groups' && (<Tag color='blue' >  Fase de pontos </Tag>)}
@@ -120,23 +285,34 @@ const CardConfronto = ({
                     </Private>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="card-confroto-time" onClick={() => handleChange(time1_name)}>
-                        <Avatar size={48} shape='square' src={time1_image} icon={<TeamOutlined />} />
-                        <Text strong style={selectedKey === time1_name ? { color: 'var(--primary-color)', transform: 'scale(1.1)', transition: '0.4s', fontWeight: 'bold' } : undefined}>{time1_name}</Text>
-                    </div>
+                    <ContainerTime {...time1} />
                     <CloseOutlined style={{ fontSize: '26px' }} />
-                    <div className="card-confroto-time" onClick={() => handleChange(time2_name)}>
-                        <Avatar size={48} shape='square' src={time2_image} icon={<TeamOutlined />} />
-                        <Text strong style={selectedKey === time2_name ? { color: 'var(--primary-color)', transform: 'scale(1.1)', transition: '0.4s' } : undefined}>{time2_name}</Text>
-                    </div>
+                    <ContainerTime {...time2} />
                 </div>
-                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <Text type="secondary">Resultado:</Text>
-                        <br />
-                        <Text>
-                            <TrophyOutlined /> {result || '-'}
-                        </Text>
+                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={isAdmin() ? { cursor: 'pointer', height: '50px' } : {}} onClick={() => isAdmin() ? setShowFormResult(true) : null} >
+                        {showFormResult ? (
+                            <Form initialValues={{ result: result || '' }} form={form} layout='vertical' >
+                                <Form.Item className='remove-padding-form-item' label={<Text type="secondary">Resultado:</Text>} name={"result"}>
+                                    <Input
+                                        onKeyDown={(event) => event.keyCode === 13 ? event.target.blur() : null}
+                                        size='small'
+                                        autoFocus
+                                        style={{ maxWidth: '70px' }}
+                                        placeholder='Ex.: 1-0'
+                                        onBlur={onBlurResult}
+                                    />
+                                </Form.Item>
+                            </Form>
+                        ) : (
+                            <>
+                                <Text type="secondary">Resultado:</Text>
+                                <br />
+                                <Text>
+                                    <TrophyOutlined /> {result || '-'}
+                                </Text>
+                            </>
+                        )}
                     </div>
                     <Countdown title="Encerramento da aposta:" value={deadline} onFinish={onFinish} />
                     <div>

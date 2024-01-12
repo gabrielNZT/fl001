@@ -22,6 +22,7 @@ const DetailsBolao = () => {
     const [isParticipating, setIsParticipating] = useState();
     const [bolao, setBolao] = useState({});
     const [loading, setLoading] = useState(true);
+    const [bolaoUsers, setBolaoUsers] = useState([]);
 
     const navigate = useNavigate();
 
@@ -56,7 +57,7 @@ const DetailsBolao = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [id, navigate, supabase]);
 
     const participingBolao = async () => {
         setLoadingParticipating(true);
@@ -80,7 +81,7 @@ const DetailsBolao = () => {
         }
     }
 
-    const fetchIsParticipating = async () => {
+    const fetchIsParticipating = useCallback(async () => {
         try {
             const { data: bolao_user, error } = await supabase
                 .from('bolao_user')
@@ -96,12 +97,31 @@ const DetailsBolao = () => {
         } catch (e) {
             console.log(e);
         }
-    }
+    }, [id, supabase, user_id]);
+
+    const fetchUsers = useCallback(async () => {
+        try {
+            const { data, error } = await supabase
+                .rpc('get_users_pontuacao', {
+                    bolaoid: id
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            data.sort((a, b) => b.pontuacao - a.pontuacao);
+            setBolaoUsers(data.map((user, index) => ({ position: index + 1, ...user })));
+        } catch (e) {
+            console.log(e);
+            toast.error('Não foi possível obter os usuários participantes!');
+        }
+    }, [id, supabase]);
 
     const items = [
         { key: '1', label: 'Confrontos', children: <TabConfrontos isParticipating={isParticipating} loadingDetails={loading} /> },
         { key: '2', label: 'Bets', children: <TabBets /> },
-        { key: '3', label: 'Participantes', children: <TabUsers /> },
+        { key: '3', label: 'Participantes', children: <TabUsers fetchUsers={fetchUsers} bolaoUsers={bolaoUsers} /> },
     ];
 
     const goBack = () => {
@@ -109,8 +129,8 @@ const DetailsBolao = () => {
     };
 
     useEffect(() => {
-        Promise.all([fetchDetails(), fetchIsParticipating()]);
-    }, []);
+        Promise.all([fetchDetails(), fetchIsParticipating(), fetchUsers()]);
+    }, [fetchDetails, fetchIsParticipating, fetchUsers]);
 
     return (
         <Spin size="large" spinning={loading} tip="Carregando  dados..." indicator={<LoadingOutlined />} >
