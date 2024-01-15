@@ -39,22 +39,7 @@ const CardConfronto = ({
 
     const [form] = Form.useForm();
 
-    const momentFinishedDate = useMemo(() => expire ? moment(expire, 'DD/MM/YYYY') : moment(date, 'DD/MM/YYYY'), [date, expire]);
-
-    const cardConfrontoClassName = useMemo(() => {
-        const classes = [];
-
-        classes.push('card-confronto');
-        if ((expired.bool || moment().isAfter(momentFinishedDate) || result) && !isAdmin()) {
-            classes.push('expired-card');
-        }
-
-        if (expired.status) {
-            classes.push(`${status}-card`);
-        }
-
-        return classes.join(' ');
-    }, [expired.bool, expired.status, momentFinishedDate, result]);
+    const momentFinishedDate = useMemo(() => expire ? moment(expire, 'DD/MM/YYYY HH:mm') : moment(`${date} 13:00`, 'DD/MM/YYYY HH:mm'), [date, expire]);
 
     const supabase = useContext(SupabaseContext);
     const user_id = useMemo(() => localStorage.getItem(USER_ID_KEY), []);
@@ -78,6 +63,39 @@ const CardConfronto = ({
     const deadline = useMemo(() => {
         return expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() : moment(date, 'DD/MM/YYYY').valueOf();
     }, [expire, date]);
+
+    const finishedConfronto = useMemo(() => (expired.bool || moment().isAfter(momentFinishedDate) || result), [expired.bool, momentFinishedDate, result]);
+
+    const cardConfrontoClassName = useMemo(() => {
+        const classes = [];
+
+        classes.push('card-confronto');
+        if (finishedConfronto) {
+            classes.push('expired-card');
+        }
+
+        if (expired.status) {
+            classes.push(`${status}-card`);
+        }
+
+        try {
+            const scoreTime1 = parseInt(result.split('-')[0]);
+            const scoreTime2 = parseInt(result.split('-')[1]);
+            const winner_time_id = (scoreTime1 === scoreTime2 ? null : (scoreTime1 > scoreTime2 ? time1.id : time2.id));
+            if (winner_time_id && selected_team_id) {
+                if (winner_time_id === selected_team_id) {
+                    classes.push('success-card');
+                } else {
+                    classes.push('error-card');
+                }
+            }
+
+        } catch (e) {
+            console.log(e);
+        }
+
+        return classes.join(' ');
+    }, [expired.status, finishedConfronto, result, selected_team_id, time1.id, time2.id]);
 
     const onFinish = () => {
         setExpired({ bool: true, status: '' });
@@ -325,7 +343,7 @@ const CardConfronto = ({
                             </>
                         )}
                     </div>
-                    <Countdown title="Encerramento da aposta:" value={deadline} onFinish={onFinish} />
+                    <Countdown title="Encerramento da aposta:" value={finishedConfronto ? moment() : deadline} onFinish={onFinish} />
                     <div>
                         <Text type="secondary">Time escolhido:</Text>
                         <br />

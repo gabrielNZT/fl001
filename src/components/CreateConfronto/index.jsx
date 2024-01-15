@@ -133,7 +133,7 @@ const CreateConfronto = ({ refetchConfrontos }) => {
                             style={{ marginBottom: '16px' }}
                             showIcon
                             type="info"
-                            message="Caso não seja informada o horário de encerramento das apostas, será considerado 00:00 horas no dia do confronto."
+                            message="Caso não seja informada o horário de encerramento das apostas, será considerado 13:00 horas no dia do confronto."
                         />
                         <Form.Item required name={"time1_id"} label="Time mandante" rules={[requiredRule]}>
                             <Select

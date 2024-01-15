@@ -40,13 +40,10 @@ const Register = () => {
                 throw error;
             }
 
-
             const { error: saveProfileError } = await supabase
                 .from('profiles')
                 .insert([
-                    { email: username },
-                    { nick: nickname },
-                    { user_id: data.id }
+                    { email: username,  nick: nickname, user_id: data.user.id }
                 ])
                 .select()
 
