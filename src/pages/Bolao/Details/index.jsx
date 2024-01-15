@@ -18,6 +18,7 @@ import { USER_ID_KEY } from "constants";
 import './style.css';
 
 const DetailsBolao = () => {
+    const [loadingFetchUsers, setLoadingFetchUsers] = useState(false);
     const [loadingParticipating, setLoadingParticipating] = useState(false);
     const [isParticipating, setIsParticipating] = useState();
     const [bolao, setBolao] = useState({});
@@ -73,6 +74,18 @@ const DetailsBolao = () => {
                 throw error;
             }
 
+            const { error: errorCreatePoints } = await supabase
+                .from('pontuacao_user')
+                .insert([
+                    { user_id, bolao_id: id },
+                ])
+                .select();
+
+            if (errorCreatePoints) {
+                throw errorCreatePoints;
+            }
+
+
             setIsParticipating(true);
         } catch (e) {
             console.log(e);
@@ -100,6 +113,7 @@ const DetailsBolao = () => {
     }, [id, supabase, user_id]);
 
     const fetchUsers = useCallback(async () => {
+        setLoadingFetchUsers(true);
         try {
             const { data, error } = await supabase
                 .rpc('get_users_pontuacao', {
@@ -115,13 +129,15 @@ const DetailsBolao = () => {
         } catch (e) {
             console.log(e);
             toast.error('Não foi possível obter os usuários participantes!');
+        } finally {
+            setLoadingFetchUsers(false)
         }
     }, [id, supabase]);
 
     const items = [
         { key: '1', label: 'Confrontos', children: <TabConfrontos isParticipating={isParticipating} loadingDetails={loading} /> },
         { key: '2', label: 'Bets', children: <TabBets /> },
-        { key: '3', label: 'Participantes', children: <TabUsers fetchUsers={fetchUsers} bolaoUsers={bolaoUsers} /> },
+        { key: '3', label: 'Participantes', children: <TabUsers fetchUsers={fetchUsers} bolaoUsers={bolaoUsers} loadingFetchUsers={loadingFetchUsers} /> },
     ];
 
     const goBack = () => {

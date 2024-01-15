@@ -3,7 +3,7 @@ import React from "react";
 
 export function isAdmin() {
     const currentUserRole = localStorage.getItem(ROLE_KEY)
-    const adminRoles = ['authenticated'];
+    const adminRoles = ['service_role'];
     const isAdmin = adminRoles.includes(currentUserRole);
 
     return isAdmin;

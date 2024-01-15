@@ -215,6 +215,7 @@ const CardConfronto = ({
 
         const scoreTime1 = parseInt(result.split('-')[0]);
         const scoreTime2 = parseInt(result.split('-')[1]);
+        const winner_time_id = (scoreTime1 === scoreTime2 ? null : (scoreTime1 > scoreTime2 ? time1.id : time2.id));
         Modal.confirm({
             width: 500,
             okText: "Confirmar",
@@ -234,12 +235,22 @@ const CardConfronto = ({
                 try {
                     const { error } = await supabase
                         .from('confronto')
-                        .update({ result })
+                        .update({ result, winner_time_id })
                         .eq('id', id)
                         .select();
 
                     if (error) {
                         throw error;
+                    }
+
+
+                    const { error: errorUpdatePontuacao } = await supabase
+                        .rpc('atualizar_pontuacao_confronto', {
+                            v_id_confronto: id
+                        });
+
+                    if (errorUpdatePontuacao) {
+                        throw errorUpdatePontuacao;
                     }
 
                     setShowFormResult(false);

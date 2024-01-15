@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import { Avatar, Table } from "antd";
-import { FieldNumberOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Table } from "antd";
+import { FieldNumberOutlined, LoadingOutlined, UserOutlined } from "@ant-design/icons";
 import useSearchTable from "hooks/useSearchTable";
 
-const TabUsers = ({ fetchUsers, bolaoUsers }) => {
+const TabUsers = ({ fetchUsers, bolaoUsers, loadingFetchUsers }) => {
     const getSearchTableProps = useSearchTable();
 
     const columns = [
@@ -31,12 +31,17 @@ const TabUsers = ({ fetchUsers, bolaoUsers }) => {
     }, [bolaoUsers, fetchUsers]);
 
     return (
-        <div className="fade-in">
+        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <Button style={{ maxWidth: 'fit-content' }} onClick={fetchUsers} disabled={loadingFetchUsers}> Atualizar dados </Button>
             <p> Usuários que estão participando desse bolão. </p>
             <Table
                 rowKey={(record) => record.id}
                 columns={columns}
                 dataSource={bolaoUsers || []}
+                loading={{
+                    indicator: <LoadingOutlined />,
+                    spinning: loadingFetchUsers
+                }}
             />
         </div>
     );

@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useState } from 'react';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Dropdown, Layout, Menu, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo.png';
 import { ROLE_KEY, TOKEN_KEY, USER_ID_KEY } from '../../constants';
 import './style.css';
 import { isAdmin } from '../Private';
@@ -80,14 +79,6 @@ const CustomLayout = ({ children }) => {
                     alignItems: 'center',
                 }}
             >
-                <div style={{ display: 'flex', justifyContent: 'center', width: '100px' }} >
-                    <img
-                        onClick={() => handleChangeMenu({ keyPath: ['1'], key: '1' })}
-                        src={logo}
-                        alt='logo-intz'
-                        style={{ height: '48px', width: '48px', cursor: 'pointer' }}
-                    />
-                </div>
                 <Menu
                     onClick={handleChangeMenu}
                     mode="horizontal"

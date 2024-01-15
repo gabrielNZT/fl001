@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
-import { Login, NotFound, ListTimes } from '../pages';
+import { Login, NotFound, ListTimes, Register } from '../pages';
 import { DetailsBolao, ListBolao } from '../pages/Bolao';
 import PrivateRoute from './PrivateRoutes';
 
@@ -9,6 +9,8 @@ const RoutesConfig = () => {
     return (
         <Router>
             <Routes>
+                <Route path='/cadastro' element={<Register />} />
+                <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path='*' element={<NotFound />} />
                 <Route path='/*' element={<PrivateRoute />}>

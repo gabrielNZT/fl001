@@ -2,13 +2,13 @@ import React from 'react';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
-import logo from "../../assets/logo.png";
 
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ROLE_KEY, TOKEN_KEY, USER_ID_KEY } from '../../constants';
 import { SupabaseContext } from '../../provider/SupabaseProvider';
+import image from '../../assets/gameswp.png'
 
 import './style.css';
 
@@ -48,7 +48,8 @@ const Login = () => {
 
     return (
         <>
-            <div className='login-container'>
+            <img src={image} style={{ position: 'absolute', height: '100vh', width: '100%' }} />
+            <div style={{ position: 'relative' }} className='login-container'>
                 <div className='login-container-card'>
                     <Form
                         name="normal_login"
@@ -60,15 +61,14 @@ const Login = () => {
                     >
                         <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2> Login </h2>
-                            <img style={{ height: '64px' }} src={logo} alt='logo_intze2a' />
                         </span>
-                        <p className='p-fade-in'> Seja bem-vindo à sua comunidade de apostas. </p>
+                        <p className='p-fade-in' style={{marginBottom: '16px'}}> Seja bem-vindo à sua comunidade de apostas. </p>
                         <Form.Item
                             name="username"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Please input your Username!',
+                                    message: 'Preencha esse campo!',
                                 },
                             ]}
                         >
@@ -79,7 +79,7 @@ const Login = () => {
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Please input your Password!',
+                                    message: 'Preencha esse campo!',
                                 },
                             ]}
                         >
@@ -112,7 +112,7 @@ const Login = () => {
                             </Button>
                             Ou
                             {' '}
-                            <a href="">Cadastre-se agora!</a>
+                            <a href="/cadastro">Cadastre-se agora!</a>
                         </Form.Item>
                     </Form>
                 </div>
