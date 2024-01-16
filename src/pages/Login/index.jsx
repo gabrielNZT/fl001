@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, Modal } from 'antd';
 
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -62,7 +62,7 @@ const Login = () => {
                         <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2> Login </h2>
                         </span>
-                        <p className='p-fade-in' style={{marginBottom: '16px'}}> Seja bem-vindo à sua comunidade de apostas. </p>
+                        <p className='p-fade-in' style={{ marginBottom: '16px' }}> Seja bem-vindo à sua comunidade de apostas. </p>
                         <Form.Item
                             name="username"
                             rules={[
@@ -95,7 +95,7 @@ const Login = () => {
                                     <Checkbox>Manter-se logado</Checkbox>
                                 </Form.Item>
                             </Form.Item>
-                            <a className="login-form-forgot" href="">
+                            <a className="login-form-forgot" onClick={() => Modal.info({ title: 'Recurso ainda em desenvolvimento', content: 'Esse recurso ainda não está disponível para ser utilizado, caso tenha problemas com sua conta entre em contato com o admin.' })}>
                                 Esqueci a senha
                             </a>
                         </div>

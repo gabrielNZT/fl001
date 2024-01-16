@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { ArrowLeftOutlined, CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Spin, Tabs } from "antd";
+import { Button, Modal, Spin, Tabs } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "react-toastify";
@@ -16,6 +16,7 @@ import { isAdmin } from "components/Private";
 import { USER_ID_KEY } from "constants";
 
 import './style.css';
+import { CreateBolao, TermsModal } from "components";
 
 const DetailsBolao = () => {
     const [loadingFetchUsers, setLoadingFetchUsers] = useState(false);
@@ -112,6 +113,27 @@ const DetailsBolao = () => {
         }
     }, [id, supabase, user_id]);
 
+    const deleteBolao = async () => {
+        try {
+            setLoading(true);
+            const { error } = await supabase
+                .from('bolao')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                throw error;
+            }
+
+            navigate('/bolao');
+        } catch (e) {
+            console.log(e);
+            toast.error('Não foi possível deletar o bolao, contate o suporte.');
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const fetchUsers = useCallback(async () => {
         setLoadingFetchUsers(true);
         try {
@@ -149,49 +171,58 @@ const DetailsBolao = () => {
     }, [fetchDetails, fetchIsParticipating, fetchUsers]);
 
     return (
-        <Spin size="large" spinning={loading} tip="Carregando  dados..." indicator={<LoadingOutlined />} >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ borderBottom: '1px solid white' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                            <ArrowLeftOutlined className="arrow-return" onClick={goBack} />
-                            <h1> {name} </h1>
-                        </span>
-                        <img
-                            src={image_bolao || DEFAULT_IMAGE_BASE_64}
-                            alt="image-bolao"
-                            style={{
-                                height: '96px',
-                                width: '96px',
-                                objectFit: 'cover'
-                            }}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', alignItems: 'flex-end', paddingBottom: '10px' }}>
-                        <p style={{ maxWidth: '80%', overflowWrap: 'break-word' }}> {description} </p>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            {isAdmin() ? (
-                                <>
-                                    <Button type="primary"> Editar </Button>
-                                    <Button type="primary" danger> Deletar </Button>
-                                </>
-                            ) : (
-                                <Button
-                                    loading={loadingParticipating}
-                                    disabled={isParticipating}
-                                    icon={<CheckCircleOutlined />}
-                                    onClick={participingBolao}
-                                    type="primary"
-                                >
-                                    {isParticipating ? "Já inscrito" : "Participar"}
-                                </Button>
-                            )}
+        <>
+            <TermsModal />
+            <Spin size="large" spinning={loading} tip="Carregando  dados..." indicator={<LoadingOutlined />} >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ borderBottom: '1px solid white' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                <ArrowLeftOutlined className="arrow-return" onClick={goBack} />
+                                <h1> {name} </h1>
+                            </span>
+                            <img
+                                src={image_bolao || DEFAULT_IMAGE_BASE_64}
+                                alt="image-bolao"
+                                style={{
+                                    height: '96px',
+                                    width: '96px',
+                                    objectFit: 'cover'
+                                }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', alignItems: 'flex-end', paddingBottom: '10px' }}>
+                            <p style={{ maxWidth: '80%', overflowWrap: 'break-word' }}> {description} </p>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                {isAdmin() ? (
+                                    <>
+                                        <CreateBolao isUpdate initialValues={{ name, description }} fetchBoloes={fetchDetails} bolaoId={id} />
+                                        <Button
+                                            type="primary"
+                                            danger
+                                            onClick={() => Modal.confirm({ title: 'Apagar bolão!', content: 'Todos os dados relacionados a esse bolão serão deletados permanentemente!', onOk: deleteBolao, okButtonProps: { danger: true }, okText: 'Confirmar' })}
+                                        >
+                                            Deletar
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        loading={loadingParticipating}
+                                        disabled={isParticipating}
+                                        icon={<CheckCircleOutlined />}
+                                        onClick={participingBolao}
+                                        type="primary"
+                                    >
+                                        {isParticipating ? "Já inscrito" : "Participar"}
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
+                    <Tabs defaultActiveKey="1" type="card" items={items} />
                 </div>
-                <Tabs defaultActiveKey="1" type="card" items={items} />
-            </div>
-        </Spin>
+            </Spin >
+        </>
     );
 };
 

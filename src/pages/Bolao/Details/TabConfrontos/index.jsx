@@ -113,7 +113,7 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
                                     <div className="card-confrontos-list">
                                         <h2> {confrontosList[0].group} - {confrontosList[0].date} </h2>
                                         <div className="card-confrontos-list-container">
-                                            {confrontosList.map((confronto) => <CardConfronto key={confronto.id} {...confronto}  {...propsCardConfronto} />)}
+                                            {confrontosList.map((confronto) => <CardConfronto disabled key={confronto.id} {...confronto}  {...propsCardConfronto} />)}
                                         </div>
                                     </div>
                                 </>

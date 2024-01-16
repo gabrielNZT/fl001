@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { LoadingOutlined, PlusCircleFilled, UploadOutlined } from '@ant-design/icons';
+import { LoadingOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Spin, Upload } from 'antd';
 import { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -9,7 +9,7 @@ import { Private } from '../index';
 
 import './style.css';
 
-const CreateBolao = ({ fetchBoloes }) => {
+const CreateBolao = ({ fetchBoloes, isUpdate = false, initialValues = {}, bolaoId }) => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -52,16 +52,31 @@ const CreateBolao = ({ fetchBoloes }) => {
                 }
             }
 
-            const { error } = await supabase
-                .from('bolao')
-                .insert({
-                    description,
-                    name,
-                    ...(!!pathImage && { image_bolao: pathImage })
-                });
+            if (!isUpdate) {
+                const { error } = await supabase
+                    .from('bolao')
+                    .insert({
+                        description,
+                        name,
+                        ...(!!pathImage && { image_bolao: pathImage })
+                    });
 
-            if (error) {
-                throw error;
+                if (error) {
+                    throw error;
+                }
+            } else {
+                const { error } = await supabase
+                    .from('bolao')
+                    .update({
+                        description,
+                        name,
+                        ...(!!pathImage && { image_bolao: pathImage })
+                    })
+                    .eq('id', bolaoId);
+
+                if (error) {
+                    throw error;
+                }
             }
 
             toast.success('Bolão criado com sucesso!');
@@ -75,10 +90,14 @@ const CreateBolao = ({ fetchBoloes }) => {
         }
     };
 
+    useEffect(() => {
+        form.setFieldsValue(initialValues);
+    }, [form, initialValues]);
+
     return (
         <>
             <Private>
-                <Button size='large' icon={<PlusCircleFilled />} type='primary' onClick={openModal} > Criar bolão </Button>
+                <Button type='primary' onClick={openModal} > {!isUpdate ? 'Criar bolão' : 'Editar'} </Button>
             </Private>
             <Modal
                 open={open}

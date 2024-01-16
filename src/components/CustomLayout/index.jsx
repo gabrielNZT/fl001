@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Breadcrumb, Dropdown, Layout, Menu, theme } from 'antd';
+import { Avatar, Breadcrumb, Dropdown, Layout, Menu, Modal, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROLE_KEY, TOKEN_KEY, USER_ID_KEY } from '../../constants';
 import './style.css';
@@ -27,7 +27,7 @@ const CustomLayout = ({ children }) => {
 
     const itemsDropdown = [
         {
-            label: <a href="https://www.antgroup.com">Ver pefil</a>,
+            label: <a onClick={() => Modal.info({ title: 'Recurso ainda em desenvolvimento', content: 'Esse recurso ainda não está disponível para ser utilizado, caso tenha problemas com sua conta entre em contato com o admin.' })}>Ver pefil</a>,
             key: '0',
         },
         {
@@ -41,19 +41,24 @@ const CustomLayout = ({ children }) => {
 
     const hashTableUrl = {
         '1': '/bolao',
-        '2': '/time'
+        '2': '/regras',
+        '3': '/time'
     }
 
     const items = [
         {
             key: '1',
             label: 'Bolões',
+        },
+        {
+            key: '2',
+            label: 'Regras'
         }
     ];
 
     if (isAdmin()) {
         items.push({
-            key: '2',
+            key: '3',
             label: 'Times',
         });
     }

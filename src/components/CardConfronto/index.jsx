@@ -31,6 +31,7 @@ const CardConfronto = ({
     selected_team_id,
     isParticipating,
     refetchConfrontos = async () => { },
+    disabled = false
 }) => {
     const [showFormResult, setShowFormResult] = useState(false);
     const [selectedKey, setSelectedKey] = useState();
@@ -64,7 +65,7 @@ const CardConfronto = ({
         return expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() : moment(date, 'DD/MM/YYYY').valueOf();
     }, [expire, date]);
 
-    const finishedConfronto = useMemo(() => (expired.bool || moment().isAfter(momentFinishedDate) || result), [expired.bool, momentFinishedDate, result]);
+    const finishedConfronto = useMemo(() => (expired.bool || moment().isAfter(momentFinishedDate) || result || disabled), [disabled, expired.bool, momentFinishedDate, result]);
 
     const cardConfrontoClassName = useMemo(() => {
         const classes = [];
