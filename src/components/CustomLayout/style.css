@@ -20,3 +20,21 @@
         opacity: 1;
     }
 }
+
+.wpp-icon {
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+.wpp-icon:hover {
+    color: #25d366;
+}
+
+.patrocinator {
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+.patrocinator:hover {
+    transform: scale(1.1);
+}
