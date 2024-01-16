@@ -112,7 +112,7 @@ const Login = () => {
                             </Button>
                             Ou
                             {' '}
-                            <a href="/cadastro">Cadastre-se agora!</a>
+                            <a onClick={() => navigate('/cadastro')}>Cadastre-se agora!</a>
                         </Form.Item>
                     </Form>
                 </div>
