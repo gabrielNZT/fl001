@@ -26,6 +26,14 @@ const CreateBolao = ({ fetchBoloes, isUpdate = false, initialValues = {}, bolaoI
         return e?.fileList;
     };
 
+    const gerarChaveUnica = () => {
+        const timestamp = new Date().getTime();
+        const identificadorUnico = Math.random().toString(36).substring(2, 8);
+
+        const chaveUnica = `${timestamp}-${identificadorUnico}`;
+        return chaveUnica;
+    }
+
     const handleFormSubmit = async (values) => {
         try {
             setLoading(true);
@@ -35,7 +43,7 @@ const CreateBolao = ({ fetchBoloes, isUpdate = false, initialValues = {}, bolaoI
 
             if (image_bolao) {
                 const file = image_bolao[0].originFileObj;
-                const pathFile = `bolao/${file.name}`;
+                const pathFile = `bolao/${gerarChaveUnica()}`;
                 const { data: response } = await supabase.storage
                     .from('imagesFL001')
                     .upload(pathFile, file);
