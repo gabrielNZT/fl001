@@ -90,7 +90,7 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
         <Spin spinning={loadingDetails ? false : loading} tip="Carregando confrontos..." indicator={<LoadingOutlined />}>
             <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <CreateConfronto refetchConfrontos={fetchConfrontos} />
-                <Alert showIcon message="Cada acerto de confronto da fase de pontos equivale a 1 ponto, já os playoffs equivale a 2.5 pontos." type="info" />
+                <Alert showIcon message="Cada acerto de confronto da fase de pontos equivale a 1 ponto, já os playoffs equivale a 1.5 pontos." type="info" />
                 <Collapse size="large" defaultActiveKey={'1'} >
                     <Collapse.Panel header="Rodadas atuais" key={'1'}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
