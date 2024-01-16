@@ -62,7 +62,7 @@ const CardConfronto = ({
     ], [time1_id, time1_name, time2_id, time2_name]);
 
     const deadline = useMemo(() => {
-        return expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() : moment(date, 'DD/MM/YYYY').valueOf();
+        return expire ? moment(expire, 'DD/MM/YYYY HH:mm').valueOf() : moment(`${date} 13:00`, 'DD/MM/YYYY HH:mm').valueOf();
     }, [expire, date]);
 
     const finishedConfronto = useMemo(() => (expired.bool || moment().isAfter(momentFinishedDate) || result || disabled), [disabled, expired.bool, momentFinishedDate, result]);
