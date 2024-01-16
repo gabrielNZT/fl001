@@ -48,7 +48,7 @@ const Login = () => {
 
     return (
         <>
-            <img src={image} style={{ position: 'absolute', height: '100vh', width: '100%' }} />
+            <img src={image} style={{ position: 'absolute', height: '100vh', width: '100%', minWidth: '100vh' }} />
             <div style={{ position: 'relative' }} className='login-container'>
                 <div className='login-container-card'>
                     <Form
