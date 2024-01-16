@@ -160,7 +160,7 @@ const CreateConfronto = ({ refetchConfrontos }) => {
                         <Form.Item required name={"date"} label="Data do confronto" rules={[requiredRule]}>
                             <DatePicker
                                 style={{ width: '200px' }}
-                                //disabledDate={disabledDates}
+                                disabledDate={disabledDates}
                                 format={"DD/MM/YYYY"}
                             />
                         </Form.Item>
