@@ -71,7 +71,7 @@ const CardConfronto = ({
         const classes = [];
 
         classes.push('card-confronto');
-        if (finishedConfronto) {
+        if (finishedConfronto && !isAdmin()) {
             classes.push('expired-card');
         }
 
