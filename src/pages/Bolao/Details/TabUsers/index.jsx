@@ -47,4 +47,5 @@ const TabUsers = ({ fetchUsers, bolaoUsers, loadingFetchUsers }) => {
     );
 }
 
+
 export default TabUsers;
