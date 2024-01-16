@@ -19,10 +19,10 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
         const dataAtual = moment();
         const dataFornecida = moment(data, 'DD/MM/YYYY');
 
-        const inicioSemanaAtual = dataAtual.startOf('week').format('YYYY-MM-DD');
-        const fimSemanaAtual = dataAtual.endOf('week').format('YYYY-MM-DD');
-
-        return dataFornecida.isBetween(inicioSemanaAtual, fimSemanaAtual, null, '[]');
+        const inicioSemanaAtual = dataAtual.startOf('isoWeek').format('YYYY-MM-DD');
+        const fimSemanaProxima = dataAtual.add(1, 'week').startOf('isoWeek').format('YYYY-MM-DD');
+        
+        return dataFornecida.isBetween(inicioSemanaAtual, fimSemanaProxima, null, '[]');
     };
 
     const fetchConfrontos = useCallback(async () => {
