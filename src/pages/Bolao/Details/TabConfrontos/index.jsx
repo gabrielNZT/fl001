@@ -21,7 +21,7 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
 
         const inicioSemanaAtual = dataAtual.startOf('isoWeek').format('YYYY-MM-DD');
         const fimSemanaProxima = dataAtual.add(1, 'week').startOf('isoWeek').format('YYYY-MM-DD');
-        
+
         return dataFornecida.isBetween(inicioSemanaAtual, fimSemanaProxima, null, '[]');
     };
 
@@ -62,13 +62,16 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
             });
 
             const outhersGroupByDate = {};
+            const currentByDate = {};
             Object.entries(groupByDate).forEach(([date, confrontos]) => {
                 if (!pertenceSemanaAtual(date)) {
                     outhersGroupByDate[date] = confrontos;
+                } else {
+                    currentByDate[date] = confrontos;
                 }
             });
 
-            setConfrontos({ currentWeek, outhers: outhersGroupByDate });
+            setConfrontos({ currentWeek: currentByDate, outhers: outhersGroupByDate });
         } catch (e) {
             console.log(e);
             toast.error('Não foi possível obter os confrontos. entre em contato com o suporte');
@@ -94,15 +97,20 @@ const TabConfrontos = ({ loadingDetails, isParticipating }) => {
                 <Collapse size="large" defaultActiveKey={'1'} >
                     <Collapse.Panel header="Rodadas atuais" key={'1'}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <h3> Esses são os confrontos da semana, aposte agora! </h3>
-                            <div className="card-confrontos-list">
-                                {!confrontos.currentWeek.length ?
-                                    <Empty description="Não há nenhum confronto para essa semana cadastrado." /> : (
-                                        <div className="card-confrontos-list-container">
-                                            {confrontos.currentWeek.map((confronto) => <CardConfronto key={confronto.id} {...confronto} {...propsCardConfronto} />)}
+                            <h1> Esses são os confrontos da semana, aposte agora! </h1>
+                            {!Object.values(confrontos.currentWeek).length && <Empty description="Não há nenhum confronto há ser listado." />}
+                            {Object.entries(confrontos.currentWeek).map(([, confrontosList]) => {
+                                return (
+                                    <>
+                                        <div className="card-confrontos-list">
+                                            <h3> {confrontosList[0].group} - {confrontosList[0].date} </h3>
+                                            <div className="card-confrontos-list-container">
+                                                {confrontosList.map((confronto) => <CardConfronto key={confronto.id} {...confronto}  {...propsCardConfronto} />)}
+                                            </div>
                                         </div>
-                                    )}
-                            </div>
+                                    </>
+                                )
+                            })}
                         </div>
                     </Collapse.Panel>
                     <Collapse.Panel header="Outras" key={'2'}>
