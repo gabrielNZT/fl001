@@ -132,6 +132,8 @@ const CustomLayout = ({ children }) => {
             <Footer
                 style={{
                     textAlign: 'center',
+                    position: 'sticky',
+                    bottom: 0
                 }}
             >
                 BOLAO 2024 ©2023 Created by NZT
