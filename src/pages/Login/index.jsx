@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Modal } from 'antd';
+import { Alert, Button, Checkbox, Form, Input, Modal } from 'antd';
 
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ROLE_KEY, TOKEN_KEY, USER_ID_KEY } from '../../constants';
 import { SupabaseContext } from '../../provider/SupabaseProvider';
@@ -15,6 +15,11 @@ import './style.css';
 const Login = () => {
     const [loading, setLoading] = useState(false);
     const supabase = useContext(SupabaseContext);
+    const location = useLocation();
+
+    const { state = {} } = location || {};
+    const { sendedEmail = false } = state || {};
+
     const navigate = useNavigate();
 
     const onFinish = async (values) => {
@@ -63,6 +68,13 @@ const Login = () => {
                             <h2> Login </h2>
                         </span>
                         <p className='p-fade-in' style={{ marginBottom: '16px' }}> Seja bem-vindo à sua comunidade de apostas. </p>
+                        {sendedEmail && (
+                            <Alert
+                                style={{ marginBottom: '16px' }}
+                                message="Antes de fazer login, você deve confirmar sua conta pelo email cadastrado"
+                                type='warning'
+                                showIcon
+                            />)}
                         <Form.Item
                             name="username"
                             rules={[
