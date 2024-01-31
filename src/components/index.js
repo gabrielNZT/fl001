@@ -4,3 +4,5 @@ export { default as CustomLayout } from './CustomLayout';
 export { default as Private } from './Private';
 export { default as CreateConfronto } from './CreateConfronto';
 export { default as TermsModal } from './TermsModal';
+export { default as ViewVotes } from './ViewVotes';
+export { default as PieBar } from './PieBar';

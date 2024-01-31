@@ -12,6 +12,7 @@ import { USER_ID_KEY } from 'constants';
 
 import './style.css';
 import { isAdmin } from 'components/Private';
+import ViewVotes from 'components/ViewVotes';
 
 const { Text } = Typography;
 const { Countdown } = Statistic;
@@ -311,7 +312,10 @@ const CardConfronto = ({
                         {phase === 'playoff' && (<Tag color='red' > Playoffs </Tag>)}
                     </span>
                     <Private>
+                        <span style={{display: 'flex', gap: '6px'}}>
+                        <ViewVotes confrontoId={id} times={[time1, time2]} />
                         <Button onClick={showDeleteConfirm} type='primary' ghost danger >Deletar</Button>
+                        </span>
                     </Private>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
