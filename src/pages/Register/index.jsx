@@ -43,7 +43,7 @@ const Register = () => {
             const { error: saveProfileError } = await supabase
                 .from('profiles')
                 .insert([
-                    { email: username,  nick: nickname, user_id: data.user.id }
+                    { email: username, nick: nickname, user_id: data.user.id }
                 ])
                 .select()
 
@@ -164,7 +164,12 @@ const Register = () => {
                             </Button>
                         </Form.Item>
                     </Form>
-                    {success && <Alert style={{ marginBottom: '16px' }} message="Um email de confirmação foi enviado." type='success' showIcon />}
+                    {success && <Alert style={{ marginBottom: '16px' }} message={(
+                        <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            Um email de confirmação foi enviado.
+                            <Button onClick={() => navigate('/login', { state: { sendedEmail: true } })}> Ok </Button>
+                        </span>
+                    )} type='success' showIcon />}
                 </div>
             </div>
         </>
