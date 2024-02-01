@@ -76,15 +76,11 @@ const CardConfronto = ({
             classes.push('expired-card');
         }
 
-        if (expired.status) {
-            classes.push(`${status}-card`);
-        }
-
         try {
-            const scoreTime1 = parseInt(result.split('-')[0]);
-            const scoreTime2 = parseInt(result.split('-')[1]);
+            const scoreTime1 = parseInt(result?.split('-')[0]);
+            const scoreTime2 = parseInt(result?.split('-')[1]);
             const winner_time_id = (scoreTime1 === scoreTime2 ? null : (scoreTime1 > scoreTime2 ? time1.id : time2.id));
-            if (winner_time_id && selected_team_id) {
+            if (winner_time_id && selected_team_id && result) {
                 if (winner_time_id === selected_team_id) {
                     classes.push('success-card');
                 } else {

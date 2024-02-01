@@ -23,7 +23,7 @@
     margin: 0px;
 }
 
-.card-confronto.expired-card {
+.card-confronto.expired-card>div {
     opacity: 0.2;
     pointer-events: none;
 }
